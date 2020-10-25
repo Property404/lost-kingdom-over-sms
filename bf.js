@@ -8,9 +8,6 @@ class Brainfuck
 	{
 		this._input_buffer = [];
 		this._output_buffer = "";
-		this.tape = {"0":0};
-		this.pointer = 0;
-
 	}
 
 	absorb(data)
@@ -33,50 +30,56 @@ class Brainfuck
 
 	async interpret(tokens)
 	{
+		const tape = {"0":0};
+		let pointer = 0;
 		for(let i=0;i<tokens.length;i++)
 		{
 			let token = tokens[i];
 
-			if (this.tape[this.pointer] == undefined)
-				this.tape[this.pointer] = 0;
+			if (tape[pointer] == undefined)
+				tape[pointer] = 0;
 
 			switch(token.type)
 			{
 				case 'B':
-					this.tape[this.pointer] = 0;
+					tape[pointer] = 0;
 					break;
 				case '+':
-					this.tape[this.pointer]+=token.value;
-					this.tape[this.pointer]%=256;
+					tape[pointer]+=token.value;
+					tape[pointer]%=256;
 					break;
 				case '-':
-					this.tape[this.pointer]-=token.value;
-					while(this.tape[this.pointer] < 0)
-						this.tape[this.pointer]+=256;
+					tape[pointer]-=token.value;
+					while(tape[pointer] < 0)
+						tape[pointer]+=256;
 					break;
 				case '>':
-					this.pointer+=token.value;
+					pointer+=token.value;
 					break;
 				case '<':
-					this.pointer-=token.value;
+					pointer-=token.value;
 					break;
 				case '.':
 					this._output_buffer +=
-						String.fromCharCode(this.tape[this.pointer]);
+						String.fromCharCode(tape[pointer]);
 					break;
 				case ',':
 					this.output();
 					if(this._input_buffer.length === 0)
 					{
+						let count = 0;
 						while(this._input_buffer.length === 0)
 						{
 							await sleep(100);
+							count++
+							if(count>36000)
+								return;
 						}
 					}
-					this.tape[this.pointer] = this._input_buffer.shift();
+					tape[pointer] = this._input_buffer.shift();
 					break;
 				case '[':
-					if(!this.tape[this.pointer])
+					if(!tape[pointer])
 					{
 						i = token.partner;
 					}
