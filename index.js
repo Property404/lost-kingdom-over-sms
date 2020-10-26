@@ -7,7 +7,7 @@ const tokens = Brainfuck.tokenize(lk);
 console.log("Finished tokenizing");
 
 const server = net.createServer(function(socket) {
-	console.log(`New connection from ${socket.address().address}`);
+	console.log(`New connection from ${socket.remoteAddress}`);
 	
 	const bf = new Brainfuck();
 	bf.output_handler = socket.write.bind(socket);
