@@ -1,6 +1,7 @@
 const net = require('net');
 const lk = require("./LostKingdom");
 const Brainfuck = require("./bf");
+const MAX_DATA_LENGTH = 256;
 
 const tokens = Brainfuck.tokenize(lk);
 console.log("Finished tokenizing");
@@ -15,6 +16,11 @@ const server = net.createServer(function(socket) {
 
 	socket.on("data", function(chunk){
 		const data = chunk.toString();
+
+		// Reject data that's too short or long
+		// to prevent DOS attacks and weirdness
+		if(data.length<1 || data.length > MAX_DATA_LENGTH)
+			return;
 		
 		// Reject binary data
 		const initial = data.charCodeAt(0);
