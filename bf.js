@@ -21,6 +21,11 @@ class Brainfuck
 		}
 	}
 
+	end()
+	{
+		this.has_ended = true;
+	}
+
 	output()
 	{
 		if(this._output_buffer !== "")
@@ -72,8 +77,11 @@ class Brainfuck
 						{
 							await sleep(100);
 							count++
-							if(count>36000)
+							if(count>36000 || this.has_ended === true)
+							{
+								console.log("bf: quit");
 								return;
+							}
 						}
 					}
 					tape[pointer] = this._input_buffer.shift();
@@ -91,6 +99,9 @@ class Brainfuck
 					console.log("meh");
 			}
 		}
+
+		console.log("bf: Done");
+		this.end();
 	}
 
 	// Adapted from Property404/dbfi/src/interpret.c
