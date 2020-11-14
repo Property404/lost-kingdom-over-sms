@@ -1,0 +1,25 @@
+{
+  "name": "lost-kingdom-over-sms",
+  "version": "0.1.0",
+  "description": "Play LostKingdom over SMS",
+  "main": "index.js",
+  "private":true,
+  "dependencies": {
+    "express": "^4.17.1",
+    "twilio": "^3.51.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Property404/lost-kingdom-over-sms.git"
+  },
+  "author": "Dagan Martinez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Property404/lost-kingdom-over-sms/issues"
+  },
+  "homepage": "https://github.com/Property404/lost-kingdom-over-sms#readme"
+}
