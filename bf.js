@@ -8,6 +8,7 @@ class Brainfuck
 	{
 		this._input_buffer = [];
 		this._output_buffer = "";
+		this._text_buffer = [];
 	}
 
 	absorb(data)
@@ -19,6 +20,7 @@ class Brainfuck
 			const v =  d.charCodeAt(0);
 			this._input_buffer.push(v);
 		}
+		this._input_buffer.push(10);
 	}
 
 	end()
@@ -26,10 +28,23 @@ class Brainfuck
 		this.has_ended = true;
 	}
 
+	async getText()
+	{
+		while(this._text_buffer.length == 0)
+		{
+			await sleep(1000);
+			if(this.has_ended)
+				return "ENDED";
+		}
+		return this._text_buffer.shift();
+	}
+
 	output()
 	{
 		if(this._output_buffer !== "")
-			this.output_handler(this._output_buffer);
+		{
+			this._text_buffer.push(this._output_buffer);
+		}
 		this._output_buffer = "";
 	}
 

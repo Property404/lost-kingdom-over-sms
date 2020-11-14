@@ -1,56 +1,45 @@
-const net = require('net');
+const http = require('http');
+const express = require('express');
+const bodyParser = require('body-parser');
+const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const lk = require("./LostKingdom");
 const Brainfuck = require("./bf");
-const MAX_DATA_LENGTH = 256;
-const MINUTE = 60*1000;
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const tokens = Brainfuck.tokenize(lk);
-delete lk;
-console.log("Finished tokenizing");
+const bmap = {}
 
-const server = net.createServer(function(socket) {
-	const address = socket.remoteAddress;
-	console.log(`<New connection: ${address}>`);
+app.post('/sms', async (req, res) => {
+	const twiml = new MessagingResponse();
+	const from = req.body.From;
+	const message = req.body.Body;
 
-	const bf = new Brainfuck();
-	bf.output_handler = socket.write.bind(socket);
+	console.log(`${from}: ${message}`);
 
-	bf.interpret(tokens).then(()=>socket.end());
+	if(!bmap[from])
+	{
+		console.log(`<${from} started>`);
+		bmap[from] = new Brainfuck();
+		bmap[from].interpret(tokens).then(()=>{
+			console.log(`<${from} left>`);
+			bmap[from] = undefined
+		});
+	}
+	else
+	{
+		bmap[from].absorb(message);
+	}
 
-	socket.on("error", (err)=>{
-		console.log(`<Error: ${address}: ${err}>`);
-		bf.end();
-	});
+	const text = await bmap[from].getText();
 
-	socket.setTimeout(15*MINUTE);
-	socket.on("timeout", ()=>{
-		console.log(`<${address} timed out>`);
-		socket.end("<connection timeout>");
-	});
+	twiml.message(text);
 
-	socket.on("end", ()=>{
-		console.log(`<${address} disconnected>`);
-		bf.end();
-	});
-
-	socket.on("data", function(chunk){
-		const data = chunk.toString();
-
-		// Reject data that's too short or long
-		// to prevent DOS attacks and weirdness
-		if(data.length<1 || data.length > MAX_DATA_LENGTH)
-			return;
-
-		// Reject binary data
-		const initial = data.charCodeAt(0);
-		if(initial != 10 && initial != 13 &&
-			(initial<32 || initial > 128))
-			return;
-
-		console.log(`${address}: ${data.replace("\r\n","")}`);
-		bf.absorb(data);
-	});
+	res.writeHead(200, {'Content-Type': 'text/xml'});
+	res.end(twiml.toString());
 });
 
-server.listen(23, '::');
-
+http.createServer(app).listen(1337, () => {
+	console.log('Express server listening on port 1337');
+});

@@ -1,6 +1,7 @@
-# Lost Kingdom over Telnet
-Play the Brainfuck edition of LostKingdom over telnet
+# Lost Kingdom over SMS
+Play the Brainfuck edition of LostKingdom over SMS
 
 Usage:  
-`sudo node index.js`  
-`telnet 127.0.0.1`
+`twilio phone-numbers:update "[your Twilio number]" --sms-url="http://localhost:1337/sms"`  
+`sudo node index.js` 
+Then send any text message to the specified number
